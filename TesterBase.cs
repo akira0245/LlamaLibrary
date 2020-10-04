@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +25,7 @@ using ff14bot.NeoProfiles;
 using ff14bot.Objects;
 using ff14bot.Pathing;
 using ff14bot.Pathing.Service_Navigation;
+using ff14bot.RemoteAgents;
 using ff14bot.RemoteWindows;
 using ff14bot.RemoteWindows.GoldSaucer;
 using GreyMagic;
@@ -37,11 +42,14 @@ using TreeSharp;
 using static ff14bot.RemoteWindows.Talk;
 using Action = TreeSharp.Action;
 using ActionType = ff14bot.Enums.ActionType;
+using static LlamaLibrary.Retainers.HelperFunctions;
 
 namespace LlamaLibrary
 {
     public class TesterBase : BotBase
     {
+        
+        bool IsJumping => Core.Memory.NoCacheRead<byte>(Offsets.Conditions + Offsets.JumpingCondition) != 0;
         private static Dictionary<byte, string> FishingState = new Dictionary<byte, string>
         {
             {0, "Unknown"},
@@ -141,6 +149,8 @@ namespace LlamaLibrary
 
         public override bool WantButton { get; } = true;
 
+        public Dictionary<string, List<Composite>> hooks;
+
 
         public override void OnButtonPress()
         {
@@ -173,6 +183,9 @@ namespace LlamaLibrary
 
         public override void Start()
         {
+            //hooks = TreeHooks.Instance.Hooks;
+           // TreeHooks.Instance.ClearAll();
+           
             _root = new ActionRunCoroutine(r => Run());
         }
 
@@ -181,12 +194,14 @@ namespace LlamaLibrary
             _root = null;
         }
 
-
         private async Task<bool> Run()
         {
             Navigator.PlayerMover = new SlideMover();
             Navigator.NavigationProvider = new ServiceNavigationProvider();
 
+
+            //await BuyHouse();
+            //TreeRoot.Stop("Stop Requested");
             //await LeveWindow(1018997);
             //await HousingWards();
             //await testVentures();
@@ -238,7 +253,7 @@ namespace LlamaLibrary
 
             //var composite_0 = BrainBehavior.CreateBrain();
 
-
+            //DumpLuaFunctions();
             /*
             if (mob.Distance() > (RoutineManager.Current.PullRange - 1))
             {
@@ -364,6 +379,43 @@ namespace LlamaLibrary
             }
             
             */
+            //var pat = "48 89 0D ? ? ? ? 0F B7 89 ? ? ? ? Add 3 TraceRelative";
+
+
+            /*
+            var hunts = HuntHelper.DailyHunts;
+            var newHunts = new SortedDictionary<int, StoredHuntLocationLisbeth>();
+            newHunts = JsonConvert.DeserializeObject<SortedDictionary<int, StoredHuntLocationLisbeth>>((new StreamReader("hunts.json")).ReadToEnd());
+            foreach (var hunt in hunts.Where(i => !newHunts.ContainsKey(i.Key)))
+            {
+                if (hunt.Key == 399)
+                {
+                    await Navigation.GetToMap399();
+                    await Navigation.GetTo(hunt.Value.Map, hunt.Value.Location);
+                }
+                else
+                {
+                    await Navigation.GetTo(hunt.Value.Map, hunt.Value.Location);
+                }
+
+                newHunts.Add(hunt.Key, new StoredHuntLocationLisbeth(hunt.Value.BNpcNameKey, Lisbeth.GetCurrentAreaName, hunt.Value.Location));
+                Log($"{hunt.Key}");
+                using (var outputFile = new StreamWriter($"hunts.json", false))
+                {
+                    outputFile.Write(JsonConvert.SerializeObject(newHunts));
+                }
+            }
+            
+            
+
+            using (var outputFile = new StreamWriter($"hunts1.json", false))
+            {
+                outputFile.Write(JsonConvert.SerializeObject(newHunts));
+            }
+            */
+
+
+            //Log($"{Lisbeth.GetCurrentAreaName}");
 
             //  DumpLuaFunctions();
 
@@ -371,6 +423,109 @@ namespace LlamaLibrary
             //var line = LlamaLibrary.RemoteWindows.ContentsInfo.Instance.GetElementString(50);
             //int.Parse(line.Split(':')[1].Trim());
             //Log($"START:\n{sb.ToString()}");
+
+            /*var row = FoodBuff.GetRow(420);
+
+            for (int i = 0; i < 3; i++)
+            {
+                Log($"Stat: {(ItemAttribute)row.BaseParam[i]} Max: {row.Max[i]}({row.MaxHQ[i]}) Value: {row.Value[i]}%({row.ValueHQ[i]}%) IsRelative: {(row.IsRelative[i]==1 ? "True":"False")}");
+            }*/
+            /*IntPtr[] array = Core.Memory.ReadArray<IntPtr>(SpecialShopManager.ActiveShopPtr + 0x178, 2);
+            ulong num = (ulong)((long)array[1] - (long)array[0]) / (ulong)(uint)0x1a0;
+
+            var list = Core.Memory.ReadArray<SpecialShopItemLL>(array[0], (int)num);
+
+            foreach (var item in list)
+            {try t
+                Log(item.ToString());
+            }*/
+
+            // Log(AgentWorldTravelSelect.Instance.CurrentWorld.ToString());
+
+
+            //Lisbeth.AddHook("Llama",LlamaLibrary.Retainers.RetainersPull.CheckVentureTask);
+
+            //Log($"{Achievements.HasAchievement(2199)}");
+            // Log($"{BlueMageSpellBook.SpellLocation.ToString("X")}");
+
+            //await Lisbeth.SelfRepair();
+            /*Lisbeth.AddHook("Llama",TestHook);
+            await Lisbeth.ExecuteOrders((new StreamReader("HookTest.json")).ReadToEnd());
+            Lisbeth.RemoveHook("Llama");
+
+            var newHunts = JsonConvert.DeserializeObject<SortedDictionary<int, StoredHuntLocationLisbeth>>((new StreamReader("hunts.json")).ReadToEnd());
+            var failed = new Dictionary<int, StoredHuntLocationLisbeth>();
+            var start = 0; 
+            foreach (var hunt in newHunts.Where(i=> i.Key >= start))
+            {
+                if (!await Lisbeth.TravelTo(hunt.Value.Area, hunt.Value.Location));
+                {
+                    failed.Add(hunt.Key, hunt.Value);
+                    using (var outputFile = new StreamWriter($"hunts_failed.json", false))
+                    {
+                        outputFile.Write(JsonConvert.SerializeObject(failed));
+                    }
+                }
+                Log($"Finished {start}");
+                start++;
+            }
+            using (var outputFile = new StreamWriter($"hunts_failed.json", false))
+            {
+                outputFile.Write(JsonConvert.SerializeObject(failed));
+            }*/
+
+            //Log($"{Application.ProductVersion} - {Assembly.GetEntryAssembly().GetName().Version.Revision} - {Assembly.GetEntryAssembly().GetName().Version.MinorRevision} - {Assembly.GetEntryAssembly().GetName().Version.Build}");
+
+            // Log($"\n {sb}");
+            //DumpLLOffsets();
+            
+            /*InventoryBagId[] FCChest = new InventoryBagId[] {InventoryBagId.GrandCompany_Page1, InventoryBagId.GrandCompany_Page2, InventoryBagId.GrandCompany_Page3, (InventoryBagId) 20003, (InventoryBagId) 20004};
+
+            var slots = InventoryManager.GetBagsByInventoryBagId(FCChest).SelectMany(x=> x.FilledSlots);
+            foreach (var slot in slots)
+            {
+               // Log(slot);
+            }*/
+
+            uint[] privateHousing = new uint[] {59, 60, 61, 97};
+            uint[] FCHousing = new uint[] {56,57,58,96};
+
+            var AE = WorldManager.AvailableLocations;
+
+            var PrivateHouses = AE.Where(x => privateHousing.Contains(x.AetheryteId)).OrderBy(x => x.GilCost);
+            var FCHouses = AE.Where(x => FCHousing.Contains(x.AetheryteId)).OrderBy(x => x.GilCost);
+            
+            bool HavePrivateHousing = PrivateHouses.Any();
+            bool HaveFCHousing = FCHouses.Any();
+
+
+            Log($"Private House Access: {HavePrivateHousing} FC House Access: {HaveFCHousing}");
+            
+            //await GoToHousingBell(FCHouses.First());
+            
+            
+            if (HavePrivateHousing)
+            {
+                await GoToHousingBell(PrivateHouses.First());
+            }
+            else if (HaveFCHousing)
+            {
+                await GoToHousingBell(FCHouses.First());
+            }
+            
+            
+            //DumpOffsets();
+            //await BuyHouse();
+            //await testKupoTickets();
+            TreeRoot.Stop("Stop Requested");
+            //Core.Me.Stats
+            
+            //AtkAddonControl windowByName = RaptureAtkUnitManager.Update()
+            // await Coroutine.Sleep(100);
+            
+            //Log(Core.Me.IsFate);
+
+            return false;
 
 
             BeastTribeHelper.PrintDailies();
@@ -391,12 +546,153 @@ namespace LlamaLibrary
             Log($"Cycle 4: {testTimers.GetTimer(4)}");
 
 
+            //            await Reduce.Reduce.Extract();
+
+            //InventoryManager.GetBagByInventoryBagId(InventoryBagId.EquippedItems).Last().IsFilled
+            // await BuyHouse();
             TreeRoot.Stop("Stop Requested");
+            return false;
+            //await BuyHouse();
 
             // await Coroutine.Sleep(100);
+        }
+
+        private async Task<bool> GoToHousingBell(WorldManager.TeleportLocation house)
+        {
+            Log($"Teleporting to housing: (ZID: {house.ZoneId}, AID: {house.AetheryteId}) {house.Name}");
+            await CommonTasks.Teleport(house.AetheryteId);
+
+            Log("Waiting for zone to change");
+            await Coroutine.Wait(20000, () => WorldManager.ZoneId == house.ZoneId);
+
+            Log("Getting closest housing entrance");
+            uint houseEntranceId = 2002737;
+            uint aptEntranceId = 2007402;
+
+            var entranceIds = new uint[] { houseEntranceId, aptEntranceId };
+
+            var entrance = GameObjectManager.GetObjectsByNPCIds<GameObject>(entranceIds).OrderBy(x => x.Distance2D()).FirstOrDefault();
+            if (entrance != null)
+            {
+                Log("Found housing entrance, approaching");
+                await Navigation.FlightorMove(entrance.Location);
+
+                if (entrance.IsWithinInteractRange)
+                {
+                    Navigator.NavigationProvider.ClearStuckInfo();
+                    Navigator.Stop();
+                    await Coroutine.Wait(5000, () => !IsJumping);
+
+                    entrance.Interact();
+
+                    // Handle different housing entrance menus
+                    if (entrance.NpcId == houseEntranceId)
+                    {
+                        Log("Entering house");
+
+                        await Coroutine.Wait(10000, () => SelectYesno.IsOpen);
+                        if (SelectYesno.IsOpen)
+                        {
+                            SelectYesno.Yes();
+                        }
+                    }
+                    else if (entrance.NpcId == aptEntranceId)
+                    {
+                        Log("Entering apartment");
+
+                        await Coroutine.Wait(10000, () => SelectString.IsOpen);
+                        if (SelectString.IsOpen)
+                        {
+                            SelectString.ClickSlot(0);
+                        }
+                    }
+
+                    await CommonTasks.HandleLoading();
+
+                    Log("Getting best summoning bell");
+                    var bell = HelperFunctions.FindSummoningBell();
+                    if (bell != null)
+                    {
+                        Log("Found summoning bell, approaching");
+                        await HelperFunctions.GoToSummoningBell();
+                        return true;
+                    }
+                    else
+                    {
+                        Log("Couldn't find any summoning bells");
+                    }
+                }
+            }
+            else
+            {
+                Log($"Couldn't find any housing entrances.  Are we in the right zone?  Current: ({WorldManager.ZoneId}) {WorldManager.CurrentZoneName}");
+            }
+
             return false;
         }
 
+        private void LogPtr(IntPtr pointer)
+        {
+            Log(pointer.ToString("X"));
+        }
+
+        private async Task TestHook()
+        {
+            Log("LL hook");
+            //await Navigation.GetToMap399();
+        }
+
+
+        
+        /*
+        private void DumpLLOffsets()
+        {
+            var sb = new StringBuilder();
+            var sb1 = new StringBuilder();
+            foreach (var patternItem in OffsetManager.patterns)
+            {
+                var name = patternItem.Key;
+                var pattern = patternItem.Value.Replace("Search ", "");
+
+                if (name.ToLowerInvariant().Contains("vtable") && name.ToLowerInvariant().Contains("agent"))
+                {
+                    Log($"Agent_{name}, {pattern}");
+                    sb1.AppendLine($"{name.Replace("Vtable", "").Replace("vtable", "").Replace("VTable", "").Replace("_", "")}, {pattern}");
+                }
+                else if (!name.ToLowerInvariant().Contains("exd"))
+                {
+                    Log($"{name}, {pattern}");
+                    sb.AppendLine($"{name}, {pattern}");
+                }
+            }
+
+            using (var outputFile = new StreamWriter(@"G:\AgentLL.csv", false))
+            {
+                outputFile.Write(sb1.ToString());
+            }
+
+            using (var outputFile = new StreamWriter(@"G:\LL.csv", false))
+            {
+                outputFile.Write(sb.ToString());
+            }
+
+            sb = new StringBuilder();
+            int i = 0;
+            foreach (var vtable in AgentModule.AgentVtables)
+            {
+                sb.AppendLine($"Model_{i},{Core.Memory.GetRelative(vtable).ToString("X")}");
+                i++;
+            }
+
+            using (var outputFile = new StreamWriter(@"G:\AgentOffsets.csv", false))
+            {
+                outputFile.Write(sb.ToString());
+            }
+        }
+        */
+        
+
+       
 
         private async Task BuyHouse()
         {
@@ -431,13 +727,58 @@ namespace LlamaLibrary
                         }
                     }
 
-                    await Coroutine.Sleep(_rnd.Next(2500, 5000));
+                    await Coroutine.Sleep(_rnd.Next(1500, 3000));
                     placard.Interact();
                     await Coroutine.Wait(3000, () => HousingSignBoard.Instance.IsOpen);
                 }
                 while (HousingSignBoard.Instance.IsForSale);
 
+                await Coroutine.Wait(3000, () => HousingSignBoard.Instance.IsOpen);
+                HousingSignBoard.Instance.Close();
+                await Coroutine.Wait(3000, () => !HousingSignBoard.Instance.IsOpen);
                 Lua.DoString("return _G['EventHandler']:Shutdown();");
+            }
+        }
+
+        private void DumpOffsets()
+        {
+            var off = typeof(Core).GetProperty("Offsets", BindingFlags.NonPublic | BindingFlags.Static);
+            StringBuilder stringBuilder = new StringBuilder();
+            int i = 0;
+            int j = 0;
+            int p1 = 0;
+            int p2 = 0;
+            foreach (var p in off.PropertyType.GetFields())
+            {
+                var tp = p.GetValue(off.GetValue(null));
+                //stringBuilder.Append($"\nOffset Struct_{i + 88} {i + 1} ({p.FieldType.GetFields().Length})");
+                j = 0;
+                p1 = 0;
+                p2 = 0;
+                foreach (var t in p.FieldType.GetFields())
+                {
+                    //stringBuilder.Append(string.Format("\nField: {0} \t", p2));
+
+                    if (t.FieldType == typeof(IntPtr))
+                    {
+                        //IntPtr ptr = new IntPtr(((IntPtr) t.GetValue(tp)).ToInt64() - Core.Memory.ImageBase.ToInt64());
+                        IntPtr ptr = (((IntPtr) t.GetValue(tp)));
+                        stringBuilder.Append($"Struct{i + 88}_IntPtr{p1}, {Core.Memory.GetRelative(ptr).ToInt64()}\n");
+                        //stringBuilder.Append(string.Format("\tPtr Offset_{0}: 0x{1:x}", p1, ptr.ToInt64()));
+
+                        p1++;
+                    }
+
+                    p2++;
+                }
+
+                //stringBuilder.Append("\n");
+                i++;
+            }
+
+            using (var outputFile = new StreamWriter($"RB{Assembly.GetEntryAssembly().GetName().Version.Build}.csv", false))
+            {
+                outputFile.Write(stringBuilder.ToString());
             }
         }
 
@@ -623,7 +964,7 @@ namespace LlamaLibrary
                 await HelperFunctions.UseSummoningBell();
                 await Coroutine.Wait(5000, () => RetainerList.Instance.IsOpen);
             }
-
+            
             if (!RetainerList.Instance.IsOpen)
             {
                 Log("Can't find open bell either you have none or not near a bell");

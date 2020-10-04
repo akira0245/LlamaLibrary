@@ -63,6 +63,7 @@
     <Compile Include="Enums\GCNpc.cs" />
     <Compile Include="Enums\MiniGameResult.cs" />
     <Compile Include="Enums\MyItemRole.cs" />
+    <Compile Include="Enums\RetainerCity.cs" />
     <Compile Include="Enums\RetainerRole.cs" />
     <Compile Include="Enums\VentureStatus.cs" />
     <Compile Include="Extensions\BagExtensions.cs" />
@@ -74,7 +75,10 @@
     <Compile Include="Extensions\RetainerTaskAskExtensions.cs" />
     <Compile Include="FCWorkshopBase.cs" />
     <Compile Include="GatherTest.cs" />
+    <Compile Include="Helpers\Achievements.cs" />
+    <Compile Include="Helpers\ActionHelper.cs" />
     <Compile Include="Helpers\BeastTribeHelper.cs" />
+    <Compile Include="Helpers\BlueMageSpellBook.cs" />
     <Compile Include="Helpers\GrandCompanyHelper.cs" />
     <Compile Include="Helpers\GrandCompanyShop.cs" />
     <Compile Include="Helpers\HuntHelper.cs" />
@@ -82,6 +86,7 @@
     <Compile Include="Helpers\Lisbeth.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\Navigation.cs" />
+    <Compile Include="Helpers\RequestHelper.cs" />
     <Compile Include="Helpers\RowenaHelper.cs" />
     <Compile Include="Helpers\Timers.cs" />
     <Compile Include="Helpers\TimersSettings.cs" />
@@ -91,6 +96,7 @@
     <Compile Include="IshgardHandin.cs" />
     <Compile Include="IshgardHandinBase.cs" />
     <Compile Include="GCSupplyBase.cs" />
+    <Compile Include="maps.cs" />
     <Compile Include="Materia\Materia.cs" />
     <Compile Include="Materia\MateriaItem.cs" />
     <Compile Include="Materia\MateriaSettingsFrm.cs">
@@ -104,25 +110,31 @@
     <Compile Include="Memory\OffsetManager.cs" />
     <Compile Include="Memory\Offsets.cs" />
     <Compile Include="OrderbotTags\AutoEquip.cs" />
+    <Compile Include="OrderbotTags\BasicTreasureFight.cs" />
+    <Compile Include="OrderbotTags\BuyBluTotem.cs" />
+    <Compile Include="OrderbotTags\BuyGCItem.cs" />
     <Compile Include="OrderbotTags\BuyScripItem.cs" />
     <Compile Include="OrderbotTags\BuyShopExchangeCurrency.cs" />
     <Compile Include="OrderbotTags\BuyShopExchangeItem.cs" />
     <Compile Include="OrderbotTags\BuyWhiteScriptItem.cs" />
     <Compile Include="OrderbotTags\ChangeClass.cs" />
+    <Compile Include="OrderbotTags\Fate.cs" />
     <Compile Include="OrderbotTags\GetTo.cs" />
+    <Compile Include="OrderbotTags\JoinDuty.cs" />
+    <Compile Include="OrderbotTags\LeaveDuty.cs" />
     <Compile Include="OrderbotTags\LisbethOrderBot.cs" />
+    <Compile Include="OrderbotTags\LLChangeZone.cs" />
     <Compile Include="OrderbotTags\LLDesynth.cs" />
     <Compile Include="OrderbotTags\LLHandOver.cs" />
+    <Compile Include="OrderbotTags\LLOpenChest.cs" />
     <Compile Include="OrderbotTags\LLTurnIn.cs" />
-    <Compile Include="OrderbotTags\LLPickupQuest.cs" />
     <Compile Include="OrderbotTags\LLoadProfile.cs" />
     <Compile Include="OrderbotTags\LLStopBot.cs" />
-    <Compile Include="OrderbotTags\LLTalkTo.cs" />
-    <Compile Include="OrderbotTags\LLEmoteNpc.cs" />
+    <Compile Include="OrderbotTags\LLUseObject.cs" />
     <Compile Include="OrderbotTags\LLUseSpell.cs" />
     <Compile Include="OrderbotTags\LLSendChat.cs" />
-    <Compile Include="OrderbotTags\ExtendedDuty.cs" />
     <Compile Include="OrderbotTags\LowerCollectable.cs" />
+    <Compile Include="OrderbotTags\SetBluSpells.cs" />
     <Compile Include="OutOnALimbBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -142,6 +154,7 @@
     <Compile Include="RemoteAgents\AgentCharacter.cs" />
     <Compile Include="RemoteAgents\AgentContentsInfo.cs" />
     <Compile Include="RemoteAgents\AgentDawn.cs" />
+    <Compile Include="RemoteAgents\AgentFishGuide.cs" />
     <Compile Include="RemoteAgents\AgentFreeCompany.cs" />
     <Compile Include="RemoteAgents\AgentGoldSaucerInfo.cs" />
     <Compile Include="RemoteAgents\AgentHandIn.cs" />
@@ -157,10 +170,13 @@
     <Compile Include="RemoteAgents\AgentRetainerVenture.cs" />
     <Compile Include="RemoteAgents\IAgent.cs" />
     <Compile Include="RemoteWindows\Character.cs" />
+    <Compile Include="RemoteWindows\CollectablesShop.cs" />
     <Compile Include="RemoteWindows\ContentsInfo.cs" />
     <Compile Include="RemoteWindows\ContentsInfoDetail.cs" />
     <Compile Include="RemoteWindows\Conversation.cs" />
     <Compile Include="RemoteWindows\Dawn.cs" />
+    <Compile Include="RemoteWindows\FishGuide.cs" />
+    <Compile Include="RemoteWindows\FreeShop.cs" />
     <Compile Include="RemoteWindows\GcArmyCapture.cs" />
     <Compile Include="RemoteWindows\GcArmyExpeditionResult.cs" />
     <Compile Include="RemoteWindows\GoldSaucerReward.cs" />
@@ -188,7 +204,9 @@
     <Compile Include="RemoteWindows\SubmarinePartsMenu.cs" />
     <Compile Include="Repair.cs" />
     <Compile Include="RetainerRoutine.cs" />
+    <Compile Include="Retainers\CompleteRetainer.cs" />
     <Compile Include="Retainers\HelperFunctions.cs" />
+    <Compile Include="Retainers\RetainerInventoryItem.cs" />
     <Compile Include="Retainers\RetainerInventory.cs" />
     <Compile Include="Retainers\Retainers.cs" />
     <Compile Include="Retainers\RetainerSettings.cs" />
@@ -201,6 +219,7 @@
     <Compile Include="Retainers\RetainersSettingsForm.designer.cs">
       <DependentUpon>RetainersSettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ScriptConditions\Extras.cs" />
     <Compile Include="ScriptConditions\Helpers.cs" />
     <Compile Include="Structs\FCWorkshopItem.cs" />
     <Compile Include="Structs\GatheringNodeData.cs" />
@@ -209,6 +228,7 @@
     <Compile Include="Structs\HousingPlot.cs" />
     <Compile Include="Structs\ItemStored.cs" />
     <Compile Include="Structs\LisbethOrder.cs" />
+    <Compile Include="Structs\RequestItem.cs" />
     <Compile Include="Structs\RetainerInfo.cs" />
     <Compile Include="Structs\RowenaItem.cs" />
     <Compile Include="TesterBase.cs" />
@@ -230,9 +250,6 @@
     <EmbeddedResource Include="Retainers\RetainersSettingsForm.resx">
       <DependentUpon>RetainersSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Forms\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\AllHunts.json" />

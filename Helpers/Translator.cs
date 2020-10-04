@@ -17,12 +17,29 @@ namespace LlamaLibrary.Helpers
         public static string AssignVentureText => Addon2386[Language];
         
         public static string AssignVentureInProgressText => Addon2387[Language];
+        
+        public static string SellInventory => Addon2380[Language];
+        
+        public static string SellRetainer => Addon2381[Language];
+        
+        public static string EntrustRetainer => Addon2378[Language];
 
         static Translator()
         {
             Language = (Language) typeof(DataManager).GetFields(BindingFlags.Static | BindingFlags.NonPublic)
                 .First(i => i.FieldType == typeof(Language)).GetValue(null);
         }
+        
+        //Addon # 2378
+        static Dictionary<Language, string> Addon2378 = new Dictionary<Language, string>
+        {
+            { Language.Eng, "Entrust or withdraw items."},
+            { Language.Jap, "アイテムの受け渡し"},
+            { Language.Fre, "Échanger des objets"},
+            { Language.Ger, "Gegenstände geben oder nehmen"},
+            { Language.Chn, "" }
+        };
+
 
         static Dictionary<Language, string> Summoning_Bell = new Dictionary<Language, string>
         {
@@ -92,5 +109,26 @@ namespace LlamaLibrary.Helpers
             { Language.Ger, "Abgeschlossen"},
             { Language.Chn, "结束" }
         };
+        
+        //Addon # 2380
+        static Dictionary<Language, string> Addon2380 = new Dictionary<Language, string>
+        {
+            { Language.Eng, "Sell items in your inventory on the market."},
+            { Language.Jap, "マーケット出品（プレイヤー所持品から）"},
+            { Language.Fre, "Mettre en vente un objet de votre inventaire"},
+            { Language.Ger, "Gegenstände aus dem eigenen Inventar verkaufen"},
+            { Language.Chn, "" }
+        };
+
+        //Addon # 2381
+        static Dictionary<Language, string> Addon2381 = new Dictionary<Language, string>
+        {
+            { Language.Eng, "Sell items in your retainer's inventory on the market."},
+            { Language.Jap, "マーケット出品（リテイナー所持品から）"},
+            { Language.Fre, "Mettre en vente un objet du servant"},
+            { Language.Ger, "Gegenstände aus dem Gehilfeninventar verkaufen"},
+            { Language.Chn, "" }
+        };
+
     }
 }

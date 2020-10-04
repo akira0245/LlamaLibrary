@@ -156,7 +156,7 @@ namespace LlamaLibrary.Helpers
             {
                 SelectIconString.ClickSlot(dialogOption);
 
-                await Coroutine.Wait(5000, () => DialogOpen);
+                await Coroutine.Wait(5000, () => DialogOpen ||SelectYesno.IsOpen);
             }
 
             if (DialogOpen) Next();
@@ -193,7 +193,7 @@ namespace LlamaLibrary.Helpers
 
                 await Coroutine.Yield();
             }
-
+            Navigator.PlayerMover.MoveStop();
             return moving == MoveResult.ReachedDestination;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Buddy.Coroutines;
@@ -11,7 +12,9 @@ using ff14bot.Enums;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 using ff14bot.Navigation;
+using ff14bot.Objects;
 using ff14bot.Pathing.Service_Navigation;
+using ff14bot.RemoteAgents;
 using ff14bot.RemoteWindows;
 using LlamaLibrary.Extensions;
 using LlamaLibrary.Helpers;
@@ -23,6 +26,7 @@ using Newtonsoft.Json;
 using TreeSharp;
 using static ff14bot.RemoteWindows.Talk;
 using static LlamaLibrary.Retainers.HelperFunctions;
+using Action = System.Action;
 
 namespace LlamaLibrary.Retainers
 {
@@ -38,12 +42,12 @@ namespace LlamaLibrary.Retainers
 
         public RetainersPull()
         {
-           // Task.Factory.StartNew(() =>
-          //  {
-                Init();
-                _init = true;
-           //     Log("INIT DONE");
-         //   });
+            // Task.Factory.StartNew(() =>
+            //  {
+            Init();
+            _init = true;
+            //     Log("INIT DONE");
+            //   });
         }
 
         public override string Name
@@ -68,7 +72,7 @@ namespace LlamaLibrary.Retainers
 
         public override Composite Root => _root;
 
-        private Lazy<List<RetainerTaskData>> VentureData;
+        private static Lazy<List<RetainerTaskData>> VentureData;
 
         public override void Initialize()
         {
@@ -93,7 +97,7 @@ namespace LlamaLibrary.Retainers
             OffsetManager.Init();
 
             Log("Load venture.json");
-            VentureData = new Lazy<List<RetainerTaskData>>(() =>loadResource<List<RetainerTaskData>>(Resources.Ventures));
+            VentureData = new Lazy<List<RetainerTaskData>>(() => loadResource<List<RetainerTaskData>>(Resources.Ventures));
             Log("Loaded venture.json");
         }
 
@@ -102,13 +106,13 @@ namespace LlamaLibrary.Retainers
             return JsonConvert.DeserializeObject<T>(text);
         }
 
-        private void Log(string text, params object[] args)
+        private static void Log(string text, params object[] args)
         {
             var msg = string.Format("[" + botName + "] " + text, args);
             Logging.Write(Colors.MediumSlateBlue, msg);
         }
 
-        private void LogCritical(string text, params object[] args)
+        private static void LogCritical(string text, params object[] args)
         {
             var msg = string.Format("[" + botName + "] " + text, args);
             Logging.Write(Colors.OrangeRed, msg);
@@ -130,6 +134,73 @@ namespace LlamaLibrary.Retainers
             return true;
         }
 
+        public static async Task CheckVentureTask()
+        {
+            var verified = await VerifiedRetainerData();
+            if (!verified) return;
+            
+            var count = await HelperFunctions.GetNumberOfRetainers();
+            var rets = Core.Memory.ReadArray<RetainerInfo>(Offsets.RetainerData, count);
+            var now = (int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+            if (rets.Any(i => i.Active && i.VentureTask !=0 && (i.VentureEndTimestamp - now) <= 0 && SpecialCurrencyManager.GetCurrencyCount(SpecialCurrency.Venture) > 2))
+            {
+                if (FishingManager.State != FishingState.None)
+                {
+                    var quit = ActionManager.CurrentActions.Values.FirstOrDefault(i => i.Id == 299);
+                    if (quit != default(SpellData))
+                    {
+                        Log($"Exiting Fishing");
+                        if (ActionManager.CanCast(quit, Core.Me))
+                        {
+                            ActionManager.DoAction(quit, Core.Me);
+                            await Coroutine.Wait(6000, () => FishingManager.State == FishingState.None);
+                        }
+                    }
+                }
+
+                if (CraftingLog.IsOpen)
+                {
+                    Log($"Closing Crafting Window");
+                    await Lisbeth.ExitCrafting();
+                    await Coroutine.Wait(6000, () => !CraftingLog.IsOpen);
+                    await Coroutine.Wait(6000, () => !CraftingManager.IsCrafting && !MovementManager.IsOccupied);
+                }
+                
+                if (DutyManager.InInstance)
+                {
+                    Log($"Leaving Diadem");
+                    DutyManager.LeaveActiveDuty();
+
+                    if (await Coroutine.Wait(30000, () => CommonBehaviors.IsLoading))
+                    {
+                        await Coroutine.Yield();
+                        await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
+                        await Coroutine.Sleep(5000);
+                    }
+                }
+
+                if (DutyManager.InInstance || CraftingLog.IsOpen || FishingManager.State != FishingState.None || MovementManager.IsOccupied || CraftingManager.IsCrafting)
+                {
+                    Log("Something went wrong");
+                    return;
+                }
+                
+                var bell = await GoToSummoningBell();
+
+                if (bell == false)
+                {
+                    LogCritical("No summoning bell near by");
+                    return;
+                }
+                await RetainerRoutine.ReadRetainers(RetainerCheckOnlyVenture);
+            }
+            else
+            {
+                Log("No Ventures Complete");
+            }
+        }
+
         public async Task RetainerRun()
         {
             var bell = await GoToSummoningBell();
@@ -148,7 +219,7 @@ namespace LlamaLibrary.Retainers
                 LogCritical($"Loop Setting {RetainerSettings.Instance.Loop} ReassignVentures {RetainerSettings.Instance.ReassignVentures}");
                 TreeRoot.Stop("Done playing with retainers");
             }
-            
+
             if (RetainerSettings.Instance.Loop && InventoryManager.FreeSlots < 2)
             {
                 LogCritical($"I am overburdened....free up some space you hoarder");
@@ -163,7 +234,7 @@ namespace LlamaLibrary.Retainers
                 LogCritical($"No ventures assigned or completed");
                 TreeRoot.Stop("Done playing with retainers");
             }
-            
+
             var nextVenture = rets.Where(i => i.VentureTask != 0 && i.Active).OrderBy(i => i.VentureEndTimestamp).First();
             if (nextVenture.VentureEndTimestamp == 0)
             {
@@ -188,7 +259,7 @@ namespace LlamaLibrary.Retainers
 
         public async Task<bool> RetainerCheck(RetainerInfo retainer)
         {
-            if (RetainerSettings.Instance.ReassignVentures && retainer.Job != ClassJobType.Adventurer)
+            if (RetainerSettings.Instance.ReassignVentures && retainer.Active && retainer.Job != ClassJobType.Adventurer)
             {
                 if (retainer.VentureTask != 0)
                 {
@@ -207,14 +278,34 @@ namespace LlamaLibrary.Retainers
             }
 
             if (RetainerSettings.Instance.DepositFromPlayer) await RetainerRoutine.DumpItems();
-            
+
             if (RetainerSettings.Instance.GetGil)
                 GetRetainerGil();
 
             return true;
         }
 
-        public async Task<bool> RetainerHandleVentures()
+        public static async Task<bool> RetainerCheckOnlyVenture(RetainerInfo retainer)
+        {
+            if (retainer.VentureTask != 0)
+            {
+                var now = (int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                var timeLeft = retainer.VentureEndTimestamp - now;
+
+                if (timeLeft <= 0 && SpecialCurrencyManager.GetCurrencyCount(SpecialCurrency.Venture) > 2)
+                {
+                    await RetainerHandleVentures();
+                }
+                else
+                {
+                    Log($"Venture will be done at {RetainerInfo.UnixTimeStampToDateTime(retainer.VentureEndTimestamp)}");
+                }
+            }
+            
+            return true;
+        }
+
+        public static async Task<bool> RetainerHandleVentures()
         {
             if (!SelectString.IsOpen)
             {
@@ -269,7 +360,7 @@ namespace LlamaLibrary.Retainers
                     RetainerTaskAsk.Close();
                 }
 
-                await Coroutine.Wait(1500, () => DialogOpen);
+                await Coroutine.Wait(1500, () => DialogOpen || SelectString.IsOpen);
                 await Coroutine.Sleep(200);
                 if (DialogOpen) Next();
                 await Coroutine.Sleep(200);

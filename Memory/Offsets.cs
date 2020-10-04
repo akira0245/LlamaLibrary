@@ -9,16 +9,19 @@ Orginal work done by zzi, contibutions by Omninewb, Freiheit, and mastahg
                                                                                  */
 
 using System;
+using ff14bot;
 using LlamaLibrary.Memory.Attributes;
 
 namespace LlamaLibrary.Memory
 {
+    
+    
 #pragma warning disable CS0649
     internal static partial class Offsets
     {
         //[Offset("Search 48 85 D2 0F 84 ? ? ? ? 55 56 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 80 7A ? ? 41 8B E8 48 8B FA 48 8B F1 74 ? 48 8B CA E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? EB ? 0F B6 42 ? A8 ? 74 ? 8B 42 ? 05 ? ? ? ? EB ? A8 ? 8B 42 ? 74 ? 05 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B CE 4C 89 B4 24 ? ? ? ? E8 ? ? ? ? 8B 9E ? ? ? ?")] //0x1BEA
-        [Offset("Search 48 85 D2 0F 84 ? ? ? ? 55 56 57 41 56")]
-        [OffsetCN("Search 48 85 D2 0F 84 ? ? ? ? 55 56 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 80 7A ? ? 41 8B E8 48 8B FA 48 8B F1 74 ? 48 8B CA E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? EB ? 0F B6 42 ? A8 ? 74 ? 8B 42 ? 05 ? ? ? ? EB ? A8 ? 8B 42 ? 74 ? 05 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B CE 4C 89 B4 24 ? ? ? ? E8 ? ? ? ? 8B 9E ? ? ? ?")] //0x1BEA
+        [Offset("Search 48 85 D2 0F 84 ?? ?? ?? ?? 53 55 57")]
+//        [OffsetCN("Search 48 85 D2 0F 84 ? ? ? ? 55 56 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 80 7A ? ? 41 8B E8 48 8B FA 48 8B F1 74 ? 48 8B CA E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? EB ? 0F B6 42 ? A8 ? 74 ? 8B 42 ? 05 ? ? ? ? EB ? A8 ? 8B 42 ? 74 ? 05 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B CE 4C 89 B4 24 ? ? ? ? E8 ? ? ? ? 8B 9E ? ? ? ?")] //0x1BEA
         internal static IntPtr SalvageAgent;
 
         [Offset("Search 4C 8D 0D ? ? ? ? 45 33 C0 33 D2 48 8B C8 E8 ? ? ? ? Add 3 TraceRelative")]
@@ -59,11 +62,11 @@ namespace LlamaLibrary.Memory
         [Offset("Search 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 80 B9 ? ? ? ? ? 41 8B F0")]
         internal static IntPtr SellFunc;
 
-        [Offset("Search 40 56 48 83 EC ? 8B F2 48 8B 15 ? ? ? ?")]
-        internal static IntPtr RemoveMateriaFunc;
+        //[Offset("Search 40 56 48 83 EC ? 8B F2 48 8B 15 ? ? ? ?")]
+       // internal static IntPtr RemoveMateriaFunc;
 
-        [Offset("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? EB ? 44 0F B7 41 ? Add 3 TraceRelative")]
-        internal static IntPtr MateriaParam;
+      //  [Offset("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? EB ? 44 0F B7 41 ? Add 3 TraceRelative")]
+      //  internal static IntPtr MateriaParam;
 
         [Offset("Search 48 89 91 ? ? ? ? 33 D2 C7 81 ? ? ? ? ? ? ? ?")]
         internal static IntPtr MeldWindowFunc;
@@ -71,13 +74,10 @@ namespace LlamaLibrary.Memory
         [Offset("Search 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 49 8B E8 48 8B F2 48 8B F9 48 85 D2 0F 84 ? ? ? ?")]
         internal static IntPtr AffixMateriaFunc;
 
-        [Offset("Search 48 8D 0D ? ? ? ? 74 ? E8 ? ? ? ? 85 C0 Add 3 TraceRelative")]
-        internal static IntPtr AffixMateriaParam;
-
         [Offset("Search 48 89 5C 24 ? 57 48 83 EC ? 41 0F B7 F8 48 8D 0D ? ? ? ?")]
         internal static IntPtr ExtractMateriaFunc;
 
-        [Offset("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 39 73 ? Add 3 TraceRelative")]
+        [Offset("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? E9 ? ? ? ? 48 8B 4B ? 48 8B 01 FF 90 ? ? ? ? 48 8B C8 Add 3 TraceRelative")]
         internal static IntPtr ExtractMateriaParam;
 
         [Offset("Search 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 41 ? 48 8B E9 48 83 C1 ?")]
@@ -91,6 +91,18 @@ namespace LlamaLibrary.Memory
 
         [Offset("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8D 0D ? ? ? ? E8 ? ? ? ? 33 D2 48 8D 0D ? ? ? ? E8 ? ? ? ? Add 3 TraceRelative")]
         internal static IntPtr GCTurnin;
+        
+        [Offset("Search 48 8D 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 8B ?? ?? ?? ?? ?? 45 33 C9 44 8B C7 89 BB ?? ?? ?? ?? Add 3 TraceRelative")]
+        internal static IntPtr Conditions;
+        
+        [Offset("Search 41 8D 51 ? E8 ? ? ? ? 84 C0 75 ? 45 33 C0 48 8D 0D ? ? ? ? 41 8D 50 ? E8 ? ? ? ? EB ? 48 8B 0D ? ? ? ? Add 3 Read8")]
+        internal static int DesynthLock;
+        
+        [Offset("Search BA ? ? ? ? E8 ? ? ? ? 48 8B 83 ? ? ? ? 48 8B 88 ? ? ? ? Add 1 Read32")]
+        internal static int JumpingCondition;
+
+      //  [Offset("Search 66 83 78 ? ? 74 ? 8B 78 ? E8 ? ? ? ? Add 3 Read8")]
+      //  internal static int VentureTask;
     }
 
     internal static partial class Offsets
@@ -121,6 +133,24 @@ namespace LlamaLibrary.Memory
 
         [Offset("Search B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 5C 24 ?? C6 85 ?? ?? ?? ?? ?? Add 1 Read32")]
         internal static int RetainerNetworkPacket;
+
+        [Offset("Search 40 57 41 54 41 55 41 56 41 57 48 83 EC ? 45 0F B7 F1")]
+        internal static IntPtr RemoveMateriaFunc;
+
+        [Offset("Search 48 8B 05 ? ? ? ? C3 ? ? ? ? ? ? ? ? 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? Add 3 TraceRelative")]
+        internal static IntPtr EventHandlerOff;
+
+        private static IntPtr _eventHandler = IntPtr.Zero;
+
+        public static IntPtr EventHandler
+        {
+            get
+            {
+                if (_eventHandler == IntPtr.Zero)
+                    _eventHandler = Core.Memory.Read<IntPtr>(EventHandlerOff);
+                return _eventHandler;
+            }
+        }
     }
 
 

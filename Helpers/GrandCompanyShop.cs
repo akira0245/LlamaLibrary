@@ -5,6 +5,7 @@ using System.Runtime.Remoting.Activation;
 using System.Threading.Tasks;
 using Buddy.Coroutines;
 using ff14bot;
+using ff14bot.Managers;
 using ff14bot.Navigation;
 using ff14bot.Pathing.Service_Navigation;
 using ff14bot.RemoteWindows;
@@ -21,7 +22,7 @@ namespace LlamaLibrary.Helpers
     {
         internal static class Offsets
         {
-            [Offset("Search 0F B6 05 ? ? ? ? 66 3B 43 ? Add 3 TraceRelative")]
+            [Offset("Search 0F B6 15 ? ? ? ? 8D 42 ? 3C ? 77 ? FE CA 48 8D 0D ? ? ? ? Add 3 TraceRelative")]
             internal static IntPtr CurrentGC;
         
             [Offset("Search 48 83 EC ? 48 8B 05 ? ? ? ? 44 8B C1 BA ? ? ? ? 48 8B 88 ? ? ? ? E8 ? ? ? ? 48 85 C0 75 ? 48 83 C4 ? C3 48 8B 00 48 83 C4 ? C3 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 48 83 EC ? 80 F9 ?")]
@@ -69,11 +70,20 @@ namespace LlamaLibrary.Helpers
                     Logger.Info($"Clicked Yes");
                     
                 }
+                await Coroutine.Sleep(800);
                 GrandCompanyExchange.Instance.Close();
                 await Coroutine.Wait(5000, () => !GrandCompanyExchange.Instance.IsOpen);
                 Core.Me.ClearTarget();
                 await Coroutine.Sleep(500);
                 return qtyCanBuy;
+            }
+            else
+            {
+                Logger.Info($"{(ActiveShopPtr + Offsets.GCArrayStart).ToString("X")}");
+                foreach (var item1 in Items)
+                {
+                    Logger.Info($"{item1.ToString()}");
+                }
             }
             GrandCompanyExchange.Instance.Close();
             await Coroutine.Wait(5000, () => !GrandCompanyExchange.Instance.IsOpen);
@@ -98,12 +108,14 @@ namespace LlamaLibrary.Helpers
             {
                 if (GrandCompanyExchange.Instance.GCRankGroup != GCRankGroup)
                 {
+                    Logger.Info($"Change GC Rank to {GCRankGroup}");
                     GrandCompanyExchange.Instance.ChangeRankGroup(GCRankGroup);
                     await Coroutine.Sleep(500);
                 }
 
+                Logger.Info($"Change ChangeItemGroup to {category}");
                 GrandCompanyExchange.Instance.ChangeItemGroup((int) category);
-                await Coroutine.Sleep(1000);
+                await Coroutine.Sleep(5000);
                 return await BuyItem(ItemId, qty);
             }
 
@@ -133,6 +145,8 @@ namespace LlamaLibrary.Helpers
             {5594, (0, GCShopCategory.Materiel)},
             {5595, (0, GCShopCategory.Materiel)},
             {5596, (0, GCShopCategory.Materiel)},
+            {6017, (0, GCShopCategory.Materiel)},
+            {6018, (0, GCShopCategory.Materiel)},
             {6019, (0, GCShopCategory.Materiel)},
             {15855, (0, GCShopCategory.Materiel)},
             {15856, (0, GCShopCategory.Materiel)},

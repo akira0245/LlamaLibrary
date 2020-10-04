@@ -8,6 +8,7 @@ using Clio.Utilities;
 using ff14bot;
 using ff14bot.AClasses;
 using ff14bot.Behavior;
+using ff14bot.Enums;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 using ff14bot.Navigation;
@@ -226,7 +227,12 @@ namespace LlamaLibrary
 
             await Coroutine.Wait(5000, () => SelectString.IsOpen);
             if (SelectString.IsOpen)
-                SelectString.ClickLineContains("Residential");
+            {
+                if (Translator.Language == Language.Chn)
+                    SelectString.ClickLineContains("冒险者住宅区传送");
+                else
+                    SelectString.ClickLineContains("Residential");
+            }
 
             await Coroutine.Sleep(500);
             await Coroutine.Wait(5000, () => SelectString.IsOpen);
@@ -262,9 +268,12 @@ namespace LlamaLibrary
 
             if (SelectIconString.IsOpen)
             {
-                SelectIconString.ClickLineContains("Lavender Beds");
+                if (Translator.Language == Language.Chn)
+                    SelectIconString.ClickLineContains("薰衣草苗圃");
+                else
+                    SelectIconString.ClickLineContains("Lavender Beds");
 
-                await Coroutine.Wait(5000, () => DialogOpen);
+                await Coroutine.Wait(5000, () => DialogOpen || SelectString.IsOpen);
             }
 
             if (DialogOpen) Next();
@@ -276,7 +285,11 @@ namespace LlamaLibrary
         {
             if (SelectString.IsOpen)
             {
-                SelectString.ClickLineContains("Go to specified");
+                if (Translator.Language == Language.Chn)
+                    SelectString.ClickLineContains("移动到指定小区");
+                else
+                    SelectString.ClickLineContains("Go to specified");
+                
 
                 await Coroutine.Wait(5000, () => HousingSelectBlock.Instance.IsOpen);
             }
@@ -392,9 +405,9 @@ namespace LlamaLibrary
                 for (var i = 0; i < HousingSelectBlock.Instance.NumberOfWards; i++)
                 {
                     HousingSelectBlock.Instance.SelectWard(i);
-
+                
                     await Coroutine.Sleep(500);
-
+                    //Log($"Ward {AgentHousingSelectBlock.Instance.WardNumber + 1}");
                     var plotStatus = AgentHousingSelectBlock.Instance.ReadPlots(HousingSelectBlock.Instance.NumberOfPlots);
 
                     for (var j = 0; j < plotStatus.Length; j++)

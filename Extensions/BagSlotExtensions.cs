@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Clio.Utilities;
 using ff14bot;
 using ff14bot.Managers;
@@ -165,9 +166,10 @@ namespace LlamaLibrary.Extensions
             {
                 using (Core.Memory.TemporaryCacheState(false))
                 {
-                    Core.Memory.CallInjected64<uint>(Offsets.RemoveMateriaFunc, new object[3]
+                    Core.Memory.CallInjected64<uint>(Offsets.RemoveMateriaFunc, new object[4]
                     {
-                        Offsets.MateriaParam,
+                        Offsets.EventHandler,
+                        0x390001,
                         (uint) bagSlot.BagId,
                         bagSlot.Slot,
                     });
@@ -198,7 +200,7 @@ namespace LlamaLibrary.Extensions
             {
                 Core.Memory.CallInjected64<uint>(Offsets.AffixMateriaFunc, new object[3]
                     {
-                        Offsets.AffixMateriaParam,
+                        Offsets.ExtractMateriaParam,
                         bagSlot.Pointer,
                         materia.Pointer
                     });

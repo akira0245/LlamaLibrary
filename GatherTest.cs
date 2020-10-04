@@ -23,6 +23,7 @@ using ff14bot.RemoteWindows;
 using GreyMagic;
 using LlamaLibrary.Extensions;
 using LlamaLibrary.Helpers;
+using LlamaLibrary.Memory;
 using TreeSharp;
 using Action = System.Action;
 
@@ -32,7 +33,9 @@ namespace LlamaLibrary
     {
         
        // public static InstanceContentDirector Director => DirectorManager.ActiveDirector as InstanceContentDirector;
-       public TimeSpan TimeLeftInDiadem => TimeSpan.FromSeconds(Core.Memory.Read<float>(DirectorManager.ActiveDirector.Pointer + 0x640));
+       public int TimerOffset;
+
+       public TimeSpan TimeLeftInDiadem => TimeSpan.FromSeconds(Core.Memory.Read<float>(DirectorManager.ActiveDirector.Pointer + TimerOffset)); //640
         //Wind new Vector3(greenf), BTN
         private static readonly Vector3[] umbralTempest =
         {
@@ -78,8 +81,8 @@ namespace LlamaLibrary
         
         private static readonly Vector3[] afkSpots =
         {
-
-            new Vector3(-169.0124f, -1.308149f, -310.2521f),
+//-182.1712, 0.8445628, -298.0846
+            new Vector3(-182.1712f, 0.8445628f, -298.0846f),
             
             new Vector3(214.7894f, -144.3608f, -267.1053f),
             
@@ -103,7 +106,7 @@ namespace LlamaLibrary
 
         private static Vector3 standBy = new Vector3(-164.3966f, -1.072426f, -302.2528f);
         
-        private static int[] weatherNodes = new[] {33229, 33230, 33231, 33232};
+        private static int[] weatherNodes = new[] {33229, 33230, 33231, 33232,33584, 33585, 33586, 33587};
 
         private static int lastWeather = 0;
 
@@ -113,6 +116,14 @@ namespace LlamaLibrary
 
         public GatherTest()
         {
+            if (Translator.Language == Language.Chn)
+            {
+                TimerOffset = 0x640;
+            }
+            else
+            {
+                TimerOffset = 0x650;
+            }
         }
 
         public override string Name => "DiademGather";
@@ -157,8 +168,13 @@ namespace LlamaLibrary
         {
 
             if (WorldManager.RawZoneId != 901)
+            {
                 await EnterDiadem();
-            
+                Log($"Waiting for instance time");
+                await Coroutine.Wait(5000, () => TimeLeftInDiadem.TotalMinutes > 1);
+                Log($"Time left {TimeLeftInDiadem:hh\\:mm\\:ss}");
+            }
+
             lastChange = new WaitTimer(new TimeSpan(0,7,0));
             Log($"Current Weather: {WorldManager.CurrentWeather}  {WorldManager.CurrentWeatherId}");
             
@@ -206,6 +222,7 @@ namespace LlamaLibrary
 
             if (DutyManager.InInstance)
             {
+                Log($"Out of time: {TimeLeftInDiadem:hh\\:mm\\:ss} Left");
                 DutyManager.LeaveActiveDuty();
 
                 if (await Coroutine.Wait(30000, () => CommonBehaviors.IsLoading))
@@ -219,7 +236,20 @@ namespace LlamaLibrary
            
         }
         
-        
+        public async Task UseCordial()
+        {
+            if (Core.Me.CurrentGP < 500)
+            {
+                await Coroutine.Sleep(2000);
+                var cordial = InventoryManager.FilledSlots.FirstOrDefault(i => i.RawItemId == 12669);
+
+                if (cordial != default(BagSlot))
+                {
+                    cordial.UseItem();
+                    await Coroutine.Sleep(2000);
+                }
+            }
+        }
 
         public void GetNodes()
         {
@@ -283,6 +313,8 @@ namespace LlamaLibrary
                     await Coroutine.Sleep(2000);
                 }
                 
+                //await UseCordial();
+                
                 node = WeatherNodeList.FirstOrDefault();
                 node.Interact();
                 
@@ -294,7 +326,16 @@ namespace LlamaLibrary
                     await testMine();
                 else if (Core.Me.CurrentJob == ClassJobType.Botanist)
                     await testBtn();
+                
+                //await UseCordial();
                 Log("Done Test Gather");
+                /*DutyManager.LeaveActiveDuty();
+                if (await Coroutine.Wait(30000, () => CommonBehaviors.IsLoading))
+                {
+                    await Coroutine.Yield();
+                    await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
+                    await Coroutine.Sleep(10000);
+                }*/
             }
         }
 
@@ -318,10 +359,7 @@ namespace LlamaLibrary
         
         public async Task testGather()
         {
-            var patternFinder = new PatternFinder(Core.Memory);
-            IntPtr AnimationLocked = patternFinder.Find("48 8D 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 8B ?? ?? ?? ?? ?? 45 33 C9 44 8B C7 89 BB ?? ?? ?? ?? Add 3 TraceRelative");
-
-            var GatherLock = Core.Memory.Read<uint>(AnimationLocked + 0x2A);
+            var GatherLock = Core.Memory.Read<uint>(Offsets.Conditions + 0x2A);
             Log("in Test Gather");
             if (GatheringManager.WindowOpen)
             {
@@ -332,22 +370,18 @@ namespace LlamaLibrary
                 while (GatheringManager.SwingsRemaining > 0)
                 {
                     items.GatherItem();
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) != 0);
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) == 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) != 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) == 0);
                 }
             }
         }
         
         public async Task testMine()
         {
-            var patternFinder = new PatternFinder(Core.Memory);
-            IntPtr AnimationLocked = patternFinder.Find("48 8D 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 8B ?? ?? ?? ?? ?? 45 33 C9 44 8B C7 89 BB ?? ?? ?? ?? Add 3 TraceRelative");
-
-            var GatherLock = Core.Memory.Read<uint>(AnimationLocked + 0x2A);
-            Log("in Test Gather");
+            //Log("in Test Gather");
             if (GatheringManager.WindowOpen)
             {
-                GatheringItem items = GatheringManager.GatheringWindowItems.FirstOrDefault(i => i.IsFilled && i.CanGather);
+                GatheringItem items = GatheringManager.GatheringWindowItems.Where(i => i.IsFilled && i.CanGather).OrderByDescending(s => s.Stars).FirstOrDefault();
 
                 if (Core.Me.CurrentGP >= 500)
                 {
@@ -375,24 +409,20 @@ namespace LlamaLibrary
                         ActionManager.DoAction(272, Core.Me);
                         await Coroutine.Sleep(2500);
                     }
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) == 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) == 0);
                     items?.GatherItem();
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) != 0);
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) == 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) != 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) == 0);
                 }
             }
         }
         
         public async Task testBtn()
         {
-            var patternFinder = new PatternFinder(Core.Memory);
-            IntPtr AnimationLocked = patternFinder.Find("48 8D 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 8B ?? ?? ?? ?? ?? 45 33 C9 44 8B C7 89 BB ?? ?? ?? ?? Add 3 TraceRelative");
-
-            var GatherLock = Core.Memory.Read<uint>(AnimationLocked + 0x2A);
-            Log("in Test Gather");
+            //Log("in Test Gather");
             if (GatheringManager.WindowOpen)
             {
-                GatheringItem items = GatheringManager.GatheringWindowItems.FirstOrDefault(i => i.IsFilled && i.CanGather);
+                GatheringItem items = GatheringManager.GatheringWindowItems.Where(i => i.IsFilled && i.CanGather).OrderByDescending(s => s.Stars).FirstOrDefault();
                 if (Core.Me.CurrentGP >= 500)
                 {
                     await Coroutine.Wait(5000, () => ActionManager.CanCast(224, Core.Me));
@@ -419,10 +449,10 @@ namespace LlamaLibrary
                         ActionManager.DoAction(273, Core.Me);
                         await Coroutine.Sleep(2500);
                     }
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) == 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) == 0);
                     items?.GatherItem();
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) != 0);
-                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(AnimationLocked + 0x2A) == 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) != 0);
+                    await Coroutine.Wait(20000, () => Core.Memory.Read<uint>(Offsets.Conditions + 0x2A) == 0);
                 }
             }
         }
