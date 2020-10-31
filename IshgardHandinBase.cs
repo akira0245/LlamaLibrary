@@ -9,7 +9,9 @@ using ff14bot.Enums;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 using ff14bot.Navigation;
+using ff14bot.Objects;
 using ff14bot.Pathing.Service_Navigation;
+using ff14bot.RemoteWindows;
 using LlamaLibrary.Extensions;
 using LlamaLibrary.Helpers;
 using LlamaLibrary.Memory;
@@ -64,6 +66,7 @@ namespace LlamaLibrary
 
         public static async Task<bool> Handin()
         {
+            await GeneralFunctions.StopBusy(dismount:false);
             if (Translator.Language == Language.Chn)
             {
                 await HandinOld();

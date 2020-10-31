@@ -79,10 +79,12 @@
     <Compile Include="Helpers\ActionHelper.cs" />
     <Compile Include="Helpers\BeastTribeHelper.cs" />
     <Compile Include="Helpers\BlueMageSpellBook.cs" />
+    <Compile Include="Helpers\GeneralFunctions.cs" />
     <Compile Include="Helpers\GrandCompanyHelper.cs" />
     <Compile Include="Helpers\GrandCompanyShop.cs" />
     <Compile Include="Helpers\HuntHelper.cs" />
     <Compile Include="Helpers\ItemConditionals.cs" />
+    <Compile Include="Helpers\ItemWeight.cs" />
     <Compile Include="Helpers\Lisbeth.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\Navigation.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Memory\OffsetManager.cs" />
     <Compile Include="Memory\Offsets.cs" />
     <Compile Include="OrderbotTags\AutoEquip.cs" />
+    <Compile Include="OrderbotTags\AutoInventoryEquip.cs" />
     <Compile Include="OrderbotTags\BasicTreasureFight.cs" />
     <Compile Include="OrderbotTags\BuyBluTotem.cs" />
     <Compile Include="OrderbotTags\BuyGCItem.cs" />
@@ -118,15 +121,20 @@
     <Compile Include="OrderbotTags\BuyShopExchangeItem.cs" />
     <Compile Include="OrderbotTags\BuyWhiteScriptItem.cs" />
     <Compile Include="OrderbotTags\ChangeClass.cs" />
+    <Compile Include="OrderbotTags\EquipWeapon.cs" />
     <Compile Include="OrderbotTags\Fate.cs" />
+    <Compile Include="OrderbotTags\GearSetEquipAll.cs" />
     <Compile Include="OrderbotTags\GetTo.cs" />
     <Compile Include="OrderbotTags\JoinDuty.cs" />
     <Compile Include="OrderbotTags\LeaveDuty.cs" />
     <Compile Include="OrderbotTags\LisbethOrderBot.cs" />
     <Compile Include="OrderbotTags\LLChangeZone.cs" />
     <Compile Include="OrderbotTags\LLDesynth.cs" />
+    <Compile Include="OrderbotTags\LLGoHome.cs" />
     <Compile Include="OrderbotTags\LLHandOver.cs" />
     <Compile Include="OrderbotTags\LLOpenChest.cs" />
+    <Compile Include="OrderbotTags\LLSellItem.cs" />
+    <Compile Include="OrderbotTags\LLSmallTalk.cs" />
     <Compile Include="OrderbotTags\LLTurnIn.cs" />
     <Compile Include="OrderbotTags\LLoadProfile.cs" />
     <Compile Include="OrderbotTags\LLStopBot.cs" />
@@ -199,6 +207,7 @@
     <Compile Include="RemoteWindows\RecommendEquip.cs" />
     <Compile Include="RemoteWindows\RemoteWindow.cs" />
     <Compile Include="RemoteWindows\RetainerList.cs" />
+    <Compile Include="RemoteWindows\SalvageAutoDialog.cs" />
     <Compile Include="RemoteWindows\RetainerTaskList.cs" />
     <Compile Include="RemoteWindows\ShopExchangeItem.cs" />
     <Compile Include="RemoteWindows\SubmarinePartsMenu.cs" />
@@ -221,6 +230,7 @@
     </Compile>
     <Compile Include="ScriptConditions\Extras.cs" />
     <Compile Include="ScriptConditions\Helpers.cs" />
+    <Compile Include="Structs\CraftingRelicTurnin.cs" />
     <Compile Include="Structs\FCWorkshopItem.cs" />
     <Compile Include="Structs\GatheringNodeData.cs" />
     <Compile Include="Structs\GCShopItem.cs" />

@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using LlamaLibrary.Helpers;
 using TreeSharp;
 using Action = TreeSharp.Action;
 /***
@@ -172,7 +173,7 @@ namespace ff14bot.NeoProfiles
 
                   new Decorator(
                       ret => currentstep == 1 && Vector3.Distance(Core.Player.Location, Position) > (currentfate.Radius - 10),
-                         UseFlight ? new ActionRunCoroutine(obj => FlyTo(Position, true, true)) : CommonBehaviors.MoveAndStop(ret => Position, Distance, stopInRange: true, destinationName: "Moving to Fates.")
+                         UseFlight ? new ActionRunCoroutine(obj => Lisbeth.TravelToZones(WorldManager.ZoneId, Position)) : CommonBehaviors.MoveAndStop(ret => Position, Distance, stopInRange: true, destinationName: "Moving to Fates.")
 
                   ),
 
@@ -394,8 +395,7 @@ namespace ff14bot.NeoProfiles
         private async Task MoveToFocusedFate()
         {
             Vector3 currentMove;
-            if (currentfate.Icon == FateIconType.ProtectNPC ||
-                  currentfate.Icon == FateIconType.ProtectNPC2)
+            if (currentfate.Icon == FateIconType.ProtectNPC || currentfate.Icon == FateIconType.ProtectNPC2)
             {
                 if (ClusterTimer.ElapsedMilliseconds > 5000)
                 {
@@ -408,7 +408,7 @@ namespace ff14bot.NeoProfiles
                     GameObjectManager.GetObjectsOfType<BattleCharacter>()
                         .Where(
                             bc =>
-                                bc.Type == GameObjectType.Pc &&
+                                ((bc.IsFate && bc.FateId == currentfate.Id && !bc.CanAttack) || bc.Type == GameObjectType.Pc) &&
                                 bc.Location.Distance(currentfate.Location) < currentfate.Radius)
                         .ForEach(
                             bc =>
