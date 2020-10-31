@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -212,6 +212,20 @@
     <Compile Include="RemoteWindows\ShopExchangeItem.cs" />
     <Compile Include="RemoteWindows\SubmarinePartsMenu.cs" />
     <Compile Include="Repair.cs" />
+    <Compile Include="RetainersMB\上架.cs" />
+    <Compile Include="RetainersMB\RetainersMB.cs" />
+    <Compile Include="RetainersMB\ChangePrice.cs" />
+    <Compile Include="RetainersMB\HelperFunctions.cs" />
+    <Compile Include="RetainersMB\RetainerInventory.cs" />
+    <Compile Include="RetainersMB\RetainersMBSettings.cs" />
+    <Compile Include="RetainersMB\RetainersSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RetainersMB\RetainersSettingsForm.designer.cs">
+      <DependentUpon>RetainersSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RetainersMB\RetainerTaskData.cs" />
+    <Compile Include="RetainersMB\RetainerTasks.cs" />
     <Compile Include="RetainerRoutine.cs" />
     <Compile Include="Retainers\CompleteRetainer.cs" />
     <Compile Include="Retainers\HelperFunctions.cs" />
@@ -257,6 +271,9 @@
     <EmbeddedResource Include="Reduce\ReduceSettingsForm.resx">
       <DependentUpon>ReduceSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="RetainersMB\RetainersSettingsForm.resx">
+      <DependentUpon>RetainersSettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Retainers\RetainersSettingsForm.resx">
       <DependentUpon>RetainersSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -266,6 +283,7 @@
     <Content Include="Resources\Materia.json" />
     <Content Include="Resources\Ventures.json" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
