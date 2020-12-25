@@ -153,19 +153,37 @@ namespace ff14bot.NeoProfiles
                  //Start fighting Fate Mobs but only when we are in close range to the fate position.TBD enhance this filter
 
             #region sync        //level Sync
+                new Decorator(r => currentfate != null && FateManager.WithinFate && Core.Me.ElementalLevel > 0 && currentfate.MaxLevel < Core.Me.ElementalLevel,
+                              new ActionRunCoroutine(async r =>
+                              {
+                                  Logging.Write("Applying Eureka Level Sync.");
 
-                 new Decorator(r => currentfate != null && FateManager.WithinFate && currentfate.MaxLevel < Core.Player.ClassLevel && !Core.Me.IsLevelSynced,
-                  new ActionRunCoroutine(async r =>
-                  {
-                      Logging.Write("Applying Level Sync.");
+                                  ToDoList.LevelSync();
 
-                      ToDoList.LevelSync();
+                                  await Coroutine.Sleep(500);
 
-                      await Coroutine.Sleep(500);
+                                  return false;
+                              })),
+                new Decorator(r => currentfate != null && FateManager.WithinFate,
+                              new ActionRunCoroutine(async r =>
+                              {
+                                  Logging.Write($"In fate {Core.Me.ElementalLevel} > 0 && {currentfate.MaxLevel} < {Core.Me.ElementalLevel}.");
 
-                      return false;
-                  })
-                  ),
+
+                                  return false;
+                              })),
+                new Decorator(r => currentfate != null && FateManager.WithinFate && currentfate.MaxLevel < Core.Player.ClassLevel && !Core.Me.IsLevelSynced,
+                              new ActionRunCoroutine(async r =>
+                              {
+                                  Logging.Write("Applying Level Sync.");
+
+                                  ToDoList.LevelSync();
+
+                                  await Coroutine.Sleep(500);
+
+                                  return false;
+                              })
+                             ),
 
             #endregion sync        //level Sync
 
@@ -438,6 +456,8 @@ namespace ff14bot.NeoProfiles
                 Position = currentfate.Location;
                 fateid = currentfate.Id;
                 currentstep = 1;
+                
+
             }
         }
 
